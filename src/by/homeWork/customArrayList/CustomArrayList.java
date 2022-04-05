@@ -13,19 +13,28 @@ public class CustomArrayList<T> implements Iterable<T> {
     /**
      * INIT_SIZE set size for any new CustomArrayList
      */
-    private final int INIT_SIZE = 16;
+    private final static int INIT_SIZE = 16;
+
     /**
-     * CUT_RATE used to reduce the extra size
+     *
+     * empty static array for optimisation, when it initializes with some value, it gets real T[] array
      */
-    private final int CUT_RATE = 2;
+    public static Object[] emptyStaticArray = new Object[]{};
+
+
     /**
      * array is the main field in core of this structure
      */
-    public Object[] array = new Object[INIT_SIZE];
+    private Object[] array;
     /**
      * pointer as itself represents actual number of elements, it increases and decreases when it is necessary
      */
     private int pointer = 0;
+
+    /**
+     * when empty static array is erased by actual array, changes to true
+     */
+    private boolean isInitialized = false;
 
     /**
      * Constructs an empty list with an initial capacity of 16.
@@ -39,7 +48,16 @@ public class CustomArrayList<T> implements Iterable<T> {
      * @param capacity sets a size for collection
      */
     public CustomArrayList(int capacity) {
-        array = new Object[capacity];
+        if (capacity < 0) {
+            throw new NegativeArraySizeException();
+        } else {
+            array = new Object[capacity];
+        }
+
+    }
+
+    public Object[] getEmptyStaticArray(){
+        return emptyStaticArray;
     }
 
     /**
@@ -49,6 +67,10 @@ public class CustomArrayList<T> implements Iterable<T> {
      * @param item the element to add in this collection
      */
     public void add(T item) {
+        if (!isInitialized) {
+            array = new Object[INIT_SIZE];
+            isInitialized = true;
+        }
         if (pointer == array.length - 1) {
             changeSize((array.length * 3) / 2 + 1);
         }
@@ -63,6 +85,10 @@ public class CustomArrayList<T> implements Iterable<T> {
      * @throws IndexOutOfBoundsException if there is no such index
      */
     public void set(int index, T element) {
+        if (!isInitialized) {
+            array = new Object[INIT_SIZE];
+            isInitialized = true;
+        }
         if (index >= 0 && index <= pointer) {
             array[index] = element;
         } else {
@@ -110,6 +136,8 @@ public class CustomArrayList<T> implements Iterable<T> {
         }
         array[pointer] = null;
         pointer--;
+
+        int CUT_RATE = 2;
         if (array.length > INIT_SIZE && pointer < array.length / CUT_RATE) {
             changeSize(array.length / 2);
         }
@@ -133,17 +161,23 @@ public class CustomArrayList<T> implements Iterable<T> {
      * @return an element from collection by
      */
     public Object get(int index) {
-        return array[index];
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        } else {
+            return array[index];
+        }
     }
 
     /**
      * drop number of elements to zero
      */
     public void clear() {
-        for (int i = 0; i < pointer; i++) {
-            array[i] = null;
+        if (!isInitialized) {
+            for (int i = 0; i < pointer; i++) {
+                array[i] = null;
+            }
+            pointer = 0;
         }
-        pointer = 0;
     }
 
     /**
@@ -260,8 +294,8 @@ public class CustomArrayList<T> implements Iterable<T> {
      */
     @Override
     public String toString() {
-        if (array == null)
-            return "null";
+        if (!isInitialized)
+            return "[]";
         int iMax = pointer - 1;
         if (iMax == -1)
             return "[]";
