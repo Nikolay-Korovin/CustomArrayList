@@ -16,11 +16,9 @@ public class CustomArrayList<T> implements Iterable<T> {
     private final static int INIT_SIZE = 16;
 
     /**
-     *
      * empty static array for optimisation, when it initializes with some value, it gets real T[] array
      */
-    public static Object[] emptyStaticArray = new Object[]{};
-
+    private static final Object[] emptyStaticArray = new Object[]{};
 
     /**
      * array is the main field in core of this structure
@@ -53,11 +51,6 @@ public class CustomArrayList<T> implements Iterable<T> {
         } else {
             array = new Object[capacity];
         }
-
-    }
-
-    public Object[] getEmptyStaticArray(){
-        return emptyStaticArray;
     }
 
     /**
@@ -117,10 +110,12 @@ public class CustomArrayList<T> implements Iterable<T> {
      * @throws IndexOutOfBoundsException if there is no such index
      */
     public void remove(T value) {
-        for (int i = 0; i < pointer; i++) {
-            if (array[i].equals(value)) {
-                trim(i);
-                break;
+        if (value != null) {
+            for (int i = 0; i < pointer; i++) {
+                if (array[i].equals(value)) {
+                    trim(i);
+                    break;
+                }
             }
         }
     }
@@ -196,8 +191,11 @@ public class CustomArrayList<T> implements Iterable<T> {
      *          it invoke qsort method (realisation of quick sort algorithm)
      *          also changes its type, due to parameterized comparator
      */
+
     public void sort(Comparator<? super T> c) {
-        qsort((T[]) array, 0, pointer - 1, c);
+        if (c != null) {
+            qsort((T[]) array, 0, pointer - 1, c);
+        }
     }
 
     /**
@@ -271,7 +269,9 @@ public class CustomArrayList<T> implements Iterable<T> {
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        Iterable.super.forEach(action);
+        if (action != null) {
+            Iterable.super.forEach(action);
+        }
     }
 
     @Override
